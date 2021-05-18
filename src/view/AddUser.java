@@ -21,6 +21,7 @@ public class AddUser extends javax.swing.JFrame {
      */
     public AddUser() {
         initComponents();
+        setLocationRelativeTo(null);
         userService = new UserService();
         user = new UserModel();
     }

@@ -6,6 +6,7 @@
 package view;
 
 import de.javasoft.plaf.synthetica.SyntheticaPlainLookAndFeel;
+import java.awt.event.KeyEvent;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -55,6 +56,12 @@ public class Login extends javax.swing.JFrame {
         userNameLabel.setText("User name:");
 
         passwordLabel.setText("Password:");
+
+        passwordField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                passwordFieldKeyPressed(evt);
+            }
+        });
 
         jCheckBox1.setText("Remember me?");
 
@@ -135,7 +142,7 @@ public class Login extends javax.swing.JFrame {
         // TODO add your handling code here:
         String userName = userNameTextField.getText();
         String password = new String(passwordField.getPassword());
-        
+
         StringBuilder sb = new StringBuilder();
         if (userName.isEmpty()) {
             sb.append("Username is empty!\n");
@@ -143,12 +150,12 @@ public class Login extends javax.swing.JFrame {
         if (password.isEmpty()) {
             sb.append("Password is empty!\n");
         }
-        
+
         if (sb.length() > 0) {
             JOptionPane.showMessageDialog(this, sb.toString(), "Invalidation", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         try {
             Connection connection = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/SoccerPlayerManagement",
                     "root", "2112");
@@ -168,16 +175,58 @@ public class Login extends javax.swing.JFrame {
             }
         } catch (SQLException sqlException) {
             sqlException.printStackTrace();
-        }     
+        }
     }//GEN-LAST:event_loginButtonActionPerformed
 
     private void resetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetButtonActionPerformed
         // TODO add your handling code here:
-       userNameTextField.setText("");
-       passwordField.setText("");
-       
-       resetButton.setSelected(true);
+        userNameTextField.setText("");
+        passwordField.setText("");
+
+        resetButton.setSelected(true);
     }//GEN-LAST:event_resetButtonActionPerformed
+
+    private void passwordFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_passwordFieldKeyPressed
+        // TODO add your handling code here:
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            String userName = userNameTextField.getText();
+            String password = new String(passwordField.getPassword());
+
+            StringBuilder sb = new StringBuilder();
+            if (userName.isEmpty()) {
+                sb.append("Username is empty!\n");
+            }
+            if (password.isEmpty()) {
+                sb.append("Password is empty!\n");
+            }
+
+            if (sb.length() > 0) {
+                JOptionPane.showMessageDialog(this, sb.toString(), "Invalidation", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try {
+                Connection connection = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3306/SoccerPlayerManagement",
+                        "root", "2112");
+
+                PreparedStatement st = (PreparedStatement) connection
+                        .prepareStatement("SELECT SSN, Password from user where SSN=? and Password=?");
+
+                st.setString(1, userName);
+                st.setString(2, password);
+                ResultSet rs = st.executeQuery();
+                if (rs.next()) {
+                    this.dispose();
+                    new Main().setVisible(true);
+                    JOptionPane.showMessageDialog(loginButton, "You have successfully logged in");
+                } else {
+                    JOptionPane.showMessageDialog(loginButton, "Wrong Username and Password");
+                }
+            } catch (SQLException sqlException) {
+                sqlException.printStackTrace();
+            }
+        }
+    }//GEN-LAST:event_passwordFieldKeyPressed
 
     /**
      * @param args the command line arguments
